@@ -19,18 +19,27 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { createBrowserHistory } from "history";
 import { Router, Route, Switch, Redirect } from "react-router-dom";
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
+import "./index.css";
 // core components
 import Admin from "layouts/Admin.js";
 import RTL from "layouts/RTL.js";
+import Login from "../src/views/LoginSignUp/Login";
 
 import "assets/css/material-dashboard-react.css?v=1.9.0";
+import SignUp from "views/LoginSignUp/SignUp";
+import ForgotPassword from "views/LoginSignUp/ForgotPassword";
 
 const hist = createBrowserHistory();
 
 ReactDOM.render(
   <Router history={hist}>
     <Switch>
+      <Route path="/Login" component={Login} />
+      <Route path="/addCustomer" component={SignUp} />
+      <Route path="/ForgotPassword" component={ForgotPassword} />
+
       <Route path="/admin" component={Admin} />
       <Route path="/rtl" component={RTL} />
       <Redirect from="/" to="/admin/dashboard" />
