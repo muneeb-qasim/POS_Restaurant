@@ -30,7 +30,7 @@ import Login from "../src/views/LoginSignUp/Login";
 import "assets/css/material-dashboard-react.css?v=1.9.0";
 import SignUp from "views/LoginSignUp/SignUp";
 import ForgotPassword from "views/LoginSignUp/ForgotPassword";
-
+import BillScreen from "../src/views/BillScreen";
 const hist = createBrowserHistory();
 
 ReactDOM.render(
@@ -39,6 +39,8 @@ ReactDOM.render(
       <Route path="/Login" component={Login} />
       <Route path="/addCustomer" component={SignUp} />
       <Route path="/ForgotPassword" component={ForgotPassword} />
+
+      <Route path="/BillScreen" component={BillScreen} />
 
       <Route path="/admin" component={Admin} />
       <Route path="/rtl" component={RTL} />
