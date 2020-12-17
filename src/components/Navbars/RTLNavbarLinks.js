@@ -25,7 +25,7 @@ const useStyles = makeStyles(styles);
 export default function RTLNavbarLinks() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(null);
-  const handleToggle = event => {
+  const handleToggle = (event) => {
     if (open && open.contains(event.target)) {
       setOpen(null);
     } else {
@@ -42,13 +42,13 @@ export default function RTLNavbarLinks() {
       <div className={classes.searchWrapper}>
         <CustomInput
           formControlProps={{
-            className: classes.margin + " " + classes.search
+            className: classes.margin + " " + classes.search,
           }}
           inputProps={{
             placeholder: "جستجو...",
             inputProps: {
-              "aria-label": "Search"
-            }
+              "aria-label": "Search",
+            },
           }}
         />
         <Button color="white" aria-label="edit" justIcon round>
@@ -56,7 +56,7 @@ export default function RTLNavbarLinks() {
         </Button>
       </div>
       <Button
-        color={window.innerWidth > 959 ? "transparent" : "white"}
+        color={window.innerWidth > 959 ? "white" : "white"}
         justIcon={window.innerWidth > 959}
         simple={!(window.innerWidth > 959)}
         aria-label="Dashboard"
@@ -102,7 +102,7 @@ export default function RTLNavbarLinks() {
               id="menu-list-grow"
               style={{
                 transformOrigin:
-                  placement === "bottom" ? "center top" : "center bottom"
+                  placement === "bottom" ? "center top" : "center bottom",
               }}
             >
               <Paper>
