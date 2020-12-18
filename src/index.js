@@ -33,6 +33,7 @@ import ForgotPassword from "views/LoginSignUp/ForgotPassword";
 import BillScreen from "../src/views/BillScreen";
 import BillReport from "views/BillReport";
 import MakePayment from "views/MakePayment";
+import KotScreen from "views/KotScreen";
 const hist = createBrowserHistory();
 
 ReactDOM.render(
@@ -45,6 +46,7 @@ ReactDOM.render(
       <Route path="/BillScreen" component={BillScreen} />
       <Route path="/BillReport" component={BillReport} />
       <Route path="/MakePayment" component={MakePayment} />
+      <Route path="/KotScreen" component={KotScreen} />
 
       <Route path="/admin" component={Admin} />
       <Route path="/rtl" component={RTL} />
