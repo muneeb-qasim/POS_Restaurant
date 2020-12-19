@@ -16,6 +16,7 @@ import CardIcon from "components/Card/CardIcon.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
 import ReceiptOutlinedIcon from "@material-ui/icons/ReceiptOutlined";
 import TextField from "@material-ui/core/TextField";
+import TableCard from "../components/KotCard/TableCard";
 const styles = {
   cardCategoryWhite: {
     "&,& a,& a:hover,& a:focus": {
@@ -49,32 +50,44 @@ const styles = {
   },
   bill: {
     margin: "5%",
-    marginTop: "15%",
-  },
-  icons: {
-    alignItems: "center",
-    justifyContent: "center",
   },
 };
 
+const tables = [
+  { title: "Table no 1", addItem: false, makeBill: true, makePayment: true },
+  { title: "Table no 2", addItem: false, makeBill: false, makePayment: true },
+  { title: "Table no 3", addItem: true, makeBill: true, makePayment: false },
+];
+
 const useStyles = makeStyles(styles);
 
-export default function BillReport({ data }) {
-  console.log("Data Created", data);
-  const editIcon = (
-    <Button onClick={console.log("edited")} color="primary" size="Large">
-      "Button"
-    </Button>
-  );
-
+export default function NewOrder() {
   const classes = useStyles();
   return (
     <div className={classes.bill}>
-      <Table
-        tableHeaderColor="primary"
-        tableHead={["SL", "Item Code", "Qty", "Price", "Action"]}
-        tableData={data}
-      />
+      <GridContainer className={classes.bill}>
+        <GridItem xs={12} sm={12} md={12}>
+          <Card>
+            <CardHeader color="warning">
+              <h4 className={classes.cardTitleWhite}>Bill Report</h4>
+              <p className={classes.cardCategoryWhite}>
+                Here is a subtitle for this table
+              </p>
+            </CardHeader>
+
+            <CardBody>
+              {tables.map((obj) => (
+                <TableCard
+                  title={obj.title}
+                  addItem={obj.addItem}
+                  makeBill={obj.makeBill}
+                  makePayment={obj.makePayment}
+                />
+              ))}
+            </CardBody>
+          </Card>
+        </GridItem>
+      </GridContainer>
     </div>
   );
 }

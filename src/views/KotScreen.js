@@ -8,27 +8,22 @@ import Box from "@material-ui/core/Box";
 import Danger from "components/Typography/Danger.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
-import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
-import Warning from "@material-ui/icons/Warning";
-import Icon from "@material-ui/core/Icon";
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
-import Dashboard from "views/Dashboard/Dashboard";
 import MenuCard from "../components/KotCard/MenuCard";
 import KotTable from "../components/KotCard/KotTable";
-import CustomInput from "components/CustomInput/CustomInput.js";
 import Button from "@material-ui/core/Button";
 import ReceiptOutlinedIcon from "@material-ui/icons/ReceiptOutlined";
+import RemoveOutlinedIcon from "@material-ui/icons/RemoveOutlined";
+import BrushOutlinedIcon from "@material-ui/icons/BrushOutlined";
 import {
   successColor,
   whiteColor,
   grayColor,
   hexToRgb,
 } from "assets/jss/material-dashboard-react.js";
-
-import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -148,9 +143,59 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const subMenu = [
+  {
+    title: "Veg Manchurian",
+    color: "secondary",
+  },
+  {
+    title: "Paneer Chilli",
+    color: "primary",
+  },
+  {
+    title: "Hakka Noodle",
+    color: "warning",
+  },
+];
+//const tableData = [["1", "Veg Manchurian", "12345", "12", "1 USD", "+"]];
+
 export default function VerticalTabs() {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
+  const [menuItem, setMenuItem] = React.useState([]);
+  const [submenu, setSubMenu] = React.useState(subMenu);
+  const handleRemoveIcon = (obj) => {
+    console.log("Obj ", obj);
+    setMenuItem(
+      menuItem.filter((e) => {
+        console.log("e ye ha s ", e[1]);
+        return e[1] != obj;
+      })
+    );
+  };
+  const Icon = (obj) => (
+    <div>
+      <Button
+        size="small"
+        color="primary"
+        startIcon={<RemoveOutlinedIcon />}
+        onClick={(e) => handleRemoveIcon(obj)}
+      ></Button>
+      <Button
+        size="small"
+        color="primary"
+        startIcon={<BrushOutlinedIcon />}
+        onClick={(e) => console.log("Edit Pressing", obj)}
+      ></Button>
+    </div>
+  );
+
+  const handleChoose = async (title) => {
+    console.log("Handle Click ", title);
+    await setMenuItem(() =>
+      menuItem.concat([["2", title, "4", "4535USD", Icon(title)]])
+    );
+  };
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -184,18 +229,16 @@ export default function VerticalTabs() {
               </Tabs>
               <TabPanel value={value} index={0} className={classes.tabPanel}>
                 <div className={classes.row}>
-                  <MenuCard title="Veg Manchurian" color={"secondary"} />
-                  <MenuCard title="Paneer Chilli" color={"primary"} />
-                  <MenuCard title="Hakka Noodles" color={"warning"} />
+                  {submenu.map((obj) => (
+                    <MenuCard
+                      title={obj.title}
+                      color={obj.color}
+                      onClick={handleChoose}
+                    />
+                  ))}
                 </div>
-
-                <KotTable
-                  SL={"1"}
-                  ItemCode={"123"}
-                  Qty={"4"}
-                  Price={"4535USD"}
-                  Action={"+"}
-                />
+                {console.log("Kot Table", menuItem)}
+                <KotTable data={menuItem} />
               </TabPanel>
               <TabPanel value={value} index={1} className={classes.tabPanel}>
                 Item Two

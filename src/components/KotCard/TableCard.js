@@ -48,8 +48,7 @@ const styles = {
     },
   },
   bill: {
-    margin: "5%",
-    marginTop: "15%",
+    margin: "1%",
   },
   icons: {
     alignItems: "center",
@@ -59,22 +58,33 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-export default function BillReport({ data }) {
-  console.log("Data Created", data);
-  const editIcon = (
-    <Button onClick={console.log("edited")} color="primary" size="Large">
-      "Button"
-    </Button>
-  );
-
+export default function NewOrder({ title, addItem, makeBill, makePayment }) {
   const classes = useStyles();
   return (
     <div className={classes.bill}>
-      <Table
-        tableHeaderColor="primary"
-        tableHead={["SL", "Item Code", "Qty", "Price", "Action"]}
-        tableData={data}
-      />
+      <GridContainer className={classes.bill}>
+        <GridItem xs={12} sm={12} md={12}>
+          <Card>
+            <CardHeader color="primary">
+              <h4 className={classes.cardTitleWhite}>{title}</h4>
+              <p className={classes.cardCategoryWhite}>
+                Here is a subtitle for this table
+              </p>
+              <Button color="warning" size="Large" disabled={addItem}>
+                Add Item
+              </Button>
+              <Button color="warning" size="Large" disabled={makeBill}>
+                Make Bill
+              </Button>
+              <Button color="warning" size="Large" disabled={makePayment}>
+                Make Payment
+              </Button>
+            </CardHeader>
+
+            <CardBody></CardBody>
+          </Card>
+        </GridItem>
+      </GridContainer>
     </div>
   );
 }
