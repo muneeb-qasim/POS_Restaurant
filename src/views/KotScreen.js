@@ -164,36 +164,53 @@ export default function VerticalTabs() {
   const [value, setValue] = React.useState(0);
   const [menuItem, setMenuItem] = React.useState([]);
   const [submenu, setSubMenu] = React.useState(subMenu);
-  const handleRemoveIcon = (obj) => {
-    console.log("Obj ", obj);
-    setMenuItem(
-      menuItem.filter((e) => {
-        console.log("e ye ha s ", e[1]);
-        return e[1] != obj;
-      })
-    );
+
+  let curr = null;
+
+  const callBack = async (obj) => {
+    console.log("Obj Call Back", obj);
+    if (obj != undefined) {
+      curr = obj;
+    }
+    handleRemoveIcon(curr, false, menuItem);
   };
+
   const Icon = (obj) => (
     <div>
       <Button
         size="small"
         color="primary"
         startIcon={<RemoveOutlinedIcon />}
-        onClick={(e) => handleRemoveIcon(obj)}
+        onClick={() => handleRemoveIcon(obj, true, menuItem)}
       ></Button>
       <Button
         size="small"
         color="primary"
         startIcon={<BrushOutlinedIcon />}
-        onClick={(e) => console.log("Edit Pressing", obj)}
+        onClick={console.log("Edit Pressing", obj)}
       ></Button>
     </div>
   );
 
+  const handleRemoveIcon = (obj, type, menu) => {
+    console.log("REmove Obj ", obj, menuItem);
+    if (type) {
+      console.log("Type Of Delete ", type);
+      const found = menuItem.find((o) => console.log("Found", o));
+
+      console.log("Found", found);
+    }
+
+    // setMenuItem(() => {
+    console.log("Current Value", curr);
+    // });
+  };
+
   const handleChoose = async (title) => {
     console.log("Handle Click ", title);
+
     await setMenuItem(() =>
-      menuItem.concat([["2", title, "4", "4535USD", Icon(title)]])
+      menuItem.concat([["2", title, 3, "4535USD", Icon(title)]])
     );
   };
 
@@ -238,7 +255,7 @@ export default function VerticalTabs() {
                   ))}
                 </div>
                 {console.log("Kot Table", menuItem)}
-                <KotTable data={menuItem} />
+                <KotTable data={menuItem} callBack={callBack} />
               </TabPanel>
               <TabPanel value={value} index={1} className={classes.tabPanel}>
                 Item Two
