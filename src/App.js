@@ -16,6 +16,9 @@ import BillScreen from '../src/views/BillScreen';
 import BillReport from '../src/views/BillReport';
 import MakePayment from '../src/views/MakePayment';
 
+import KotScreen from "views/KotScreen";
+import NewOrder from "views/NewOrder";
+
 function App() {
   return (
     <BrowserRouter>
@@ -27,6 +30,8 @@ function App() {
         <Route path="/BillScreen" component={BillScreen} />
         <Route path="/BillReport" component={BillReport} />
         <Route path="/MakePayment" component={MakePayment} />
+        <Route path="/KotScreen" component={KotScreen} />
+      <Route path="/NewOrder" component={NewOrder} />
 
         <Route path="/admin" component={Admin} />
         <Route path="/rtl" component={RTL} />

@@ -17,7 +17,11 @@ import CustomInput from 'components/CustomInput/CustomInput.js';
 import ReceiptOutlinedIcon from '@material-ui/icons/ReceiptOutlined';
 import TextField from '@material-ui/core/TextField';
 import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
+import SearchBar from 'material-ui-search-bar';
 import Button from '@material-ui/core/Button';
+
+import CustomerSearchApi from '../api/Bill';
+
 const styles = {
   cardCategoryWhite: {
     '&,& a,& a:hover,& a:focus': {
@@ -72,8 +76,18 @@ export default function TableList() {
   const classes = useStyles();
 
   const [modal, setModal] = useState(false);
+  const [seaCustomer, setSeaCustomer] = useState();
 
   const toggle = () => setModal(!modal);
+  const handleSearch = async () => {
+    const token = localStorage.getItem('jwt');
+    const bearerToken = 'Bearer ' + token;
+    const result = await CustomerSearchApi.getCustomer(
+      bearerToken,
+      seaCustomer
+    );
+    console.log(result);
+  };
 
   return (
     <>
@@ -217,10 +231,11 @@ export default function TableList() {
             <CardFooter>
               <div className="row">
                 <div className="col-md-6">
-                  <TextField
-                    id="standard-search"
-                    label="Search Customer"
-                    type="search"
+                  <SearchBar
+                    value={seaCustomer}
+                    onChange={(key) => setSeaCustomer(key)}
+                    onRequestSearch={handleSearch}
+                    placeholder="Search Customer"
                   />
                 </div>
                 <div className="col-md-6">
