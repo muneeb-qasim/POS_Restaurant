@@ -20,6 +20,8 @@ import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
 import SearchBar from 'material-ui-search-bar';
 import Button from '@material-ui/core/Button';
 
+import Alert from '@material-ui/lab/Alert';
+
 import CustomerSearchApi from '../api/Bill';
 
 const styles = {
@@ -77,16 +79,26 @@ export default function TableList() {
 
   const [modal, setModal] = useState(false);
   const [seaCustomer, setSeaCustomer] = useState();
+  const [foundCus, setFoundCus] = useState();
+  const [notFound, setNotFound] = useState(false);
 
   const toggle = () => setModal(!modal);
   const handleSearch = async () => {
+    setFoundCus(undefined);
+    setNotFound(false);
     const token = localStorage.getItem('jwt');
     const bearerToken = 'Bearer ' + token;
     const result = await CustomerSearchApi.getCustomer(
       bearerToken,
       seaCustomer
     );
-    console.log(result);
+    if (result.data !== null) {
+      setFoundCus(result.data);
+      setNotFound(false);
+    } else {
+      setNotFound(true);
+      setFoundCus(undefined);
+    }
   };
 
   return (
@@ -237,6 +249,13 @@ export default function TableList() {
                     onRequestSearch={handleSearch}
                     placeholder="Search Customer"
                   />
+
+                  {foundCus !== undefined && (
+                    <Alert severity="success">Customer Found</Alert>
+                  )}
+                  {notFound && (
+                    <Alert severity="error">Customer Not Found!</Alert>
+                  )}
                 </div>
                 <div className="col-md-6">
                   <p>

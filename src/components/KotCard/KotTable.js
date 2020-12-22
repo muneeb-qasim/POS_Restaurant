@@ -59,7 +59,7 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-export default function BillReport({ data }) {
+export default function KotTable({ data, callBack }) {
   console.log("Data Created", data);
   const editIcon = (
     <Button onClick={console.log("edited")} color="primary" size="Large">
@@ -74,6 +74,7 @@ export default function BillReport({ data }) {
         tableHeaderColor="primary"
         tableHead={["SL", "Item Code", "Qty", "Price", "Action"]}
         tableData={data}
+        tableOnClick={callBack}
       />
     </div>
   );

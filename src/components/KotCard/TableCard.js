@@ -86,7 +86,6 @@ export default function NewOrder({title, addItem, makeBill, makePayment}) {
                 </Button>
               )}
             </CardHeader>
-
           </Card>
         </GridItem>
       </GridContainer>
