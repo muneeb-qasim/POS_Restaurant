@@ -133,6 +133,8 @@ export default function VerticalTabs() {
   const [currentValue, setCurrentValue] = React.useState([]);
   const [decrement, setDecrement] = React.useState(false);
   const [increment, setIncrement] = React.useState(false);
+  const [incrementIndex, setIncrementIndex] = React.useState(0);
+  const [decrementIndex, setDecrementIndex] = React.useState(0);
   let curr = null;
 
   const callBack = async (obj) => {
@@ -141,23 +143,26 @@ export default function VerticalTabs() {
       curr = obj;
       setCurrentValue(obj);
     }
-    console.log("Decrement State", decrement);
-    if (decrement) {
+    console.log("Decrement State", decrement, decrementIndex);
+    if (decrement && decrementIndex > 1) {
       const found = menuItem.findIndex((o) => o == curr);
       console.log("Found Element", found);
       menuItem[found][2] = menuItem[found][2] - 1;
       setMenuItem(() => menuItem);
       console.log("Found Decrement Element", menuItem[found][2] - 1);
       setDecrement(false);
+      setDecrementIndex(0);
     }
+    console.log("Increment State", increment, incrementIndex);
 
-    if (increment) {
+    if (increment && incrementIndex > 1) {
       const found = menuItem.findIndex((o) => o == curr);
       console.log("Found Element", found);
       menuItem[found][2] = menuItem[found][2] + 1;
       setMenuItem(() => menuItem);
       console.log("Found  Increment Element", menuItem[found][2] + 1);
       setIncrement(false);
+      setIncrementIndex(0);
     }
   };
 
@@ -179,9 +184,11 @@ export default function VerticalTabs() {
   );
 
   const handleRemoveIcon = () => {
+    setDecrementIndex(decrementIndex + 1);
     setDecrement(true);
   };
   const handlePlusIcon = () => {
+    setIncrementIndex(incrementIndex + 1);
     setIncrement(true);
   };
 
