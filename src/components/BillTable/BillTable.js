@@ -16,9 +16,7 @@ import CardIcon from 'components/Card/CardIcon.js';
 import CustomInput from 'components/CustomInput/CustomInput.js';
 import ReceiptOutlinedIcon from '@material-ui/icons/ReceiptOutlined';
 import TextField from '@material-ui/core/TextField';
-import TableCard from '../components/KotCard/TableCard';
 
-import OrderTableApi from '../api/Order';
 const styles = {
   cardCategoryWhite: {
     '&,& a,& a:hover,& a:focus': {
@@ -52,53 +50,39 @@ const styles = {
   },
   bill: {
     margin: '5%',
+    marginTop: '5%',
+  },
+  icons: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 };
 
-const tables = [
-  {title: 'Table no 1', addItem: false, makeBill: true, makePayment: true},
-  {title: 'Table no 2', addItem: false, makeBill: false, makePayment: true},
-  {title: 'Table no 3', addItem: true, makeBill: true, makePayment: false},
-];
-
 const useStyles = makeStyles(styles);
-export default function NewOrder() {
-  const [table, setTable] = useState();
+
+export default function BillTable({data}) {
+  console.log('Data Created Cahal', data);
+  
   const classes = useStyles();
 
-  useEffect(() => {
-    (async () => {
-      const token = localStorage.getItem('jwt');
-      const bearerToken = 'Bearer ' + token;
-      const result = await OrderTableApi.getTable(bearerToken);
-      console.log(result.data);
-      setTable(result.data);
-    })();
-  }, [table]);
   return (
     <div className={classes.bill}>
-      <GridContainer className={classes.bill}>
-        <GridItem xs={12} sm={12} md={12}>
-          <Card>
-            <CardHeader color="warning">
-              <h4 className={classes.cardTitleWhite}>New Order</h4>
-            </CardHeader>
-
-            <CardBody>
-              {table !== undefined
-                ? table.map((obj) => (
-                    <TableCard
-                      title={obj.tableName}
-                      addItem={obj.docType !== 'ConfirmKOT' ? true : false}
-                      makeBill={obj.docType === 'KOT' ? true : false}
-                      makePayment={obj.docType === 'ConfirmKOT' ? true : false}
-                    />
-                  ))
-                : null}
-            </CardBody>
-          </Card>
-        </GridItem>
-      </GridContainer>
+      <Table
+        tableHeaderColor="primary"
+        tableHead={[
+          'SL',
+          'Item',
+          'Qty',
+          'Rate',
+          'Taxable',
+          'CGST',
+          'SGST',
+          'IGST',
+          'Cess',
+          'Amount',
+        ]}
+        tableData={data}
+      />
     </div>
   );
 }

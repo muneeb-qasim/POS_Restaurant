@@ -49,7 +49,7 @@ const styles = {
   },
   bill: {
     margin: "5%",
-    marginTop: "15%",
+    marginTop: "5%",
   },
   icons: {
     alignItems: "center",
