@@ -50,11 +50,22 @@ const getBillDetails = (token, tableName) => {
     }
   );
 };
+
+const saveBill = (token, billData) => {
+  return client.post(
+    '/api/rest/kot-bill/save-bill',
+    billData,
+    {
+      headers: {Authorization: token},
+    }
+  );
+};
 export default {
   getTable,
   getKot,
   getCategory,
   getItem,
   saveKot,
-  getBillDetails
+  getBillDetails,
+  saveBill
 };

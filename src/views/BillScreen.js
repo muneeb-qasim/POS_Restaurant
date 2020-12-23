@@ -27,6 +27,8 @@ import CustomerApi from '../api/Bill';
 import BillDetailsApi from '../api/Order';
 
 import BillTable from '../components/BillTable/BillTable';
+
+import {Link, useHistory} from 'react-router-dom';
 import {createNonNullChain} from 'typescript';
 const styles = {
   cardCategoryWhite: {
@@ -81,6 +83,7 @@ const useStyles = makeStyles(styles);
 export default function TableList(props) {
   const classes = useStyles();
 
+  const history = useHistory();
   const [modal, setModal] = useState(false);
   const [seaCustomer, setSeaCustomer] = useState();
   const [foundCus, setFoundCus] = useState();
@@ -94,6 +97,7 @@ export default function TableList(props) {
   const [error, setError] = useState(false);
   const [error1, setError1] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [needCus, setNeedCus] = useState(false);
   const [billData, setBillData] = useState();
   const [totAmount, setTotAmount] = useState(0.0);
   const {TableName} = props.location.state;
@@ -166,6 +170,30 @@ export default function TableList(props) {
   }, []);
 
   const toggle = () => setModal(!modal);
+
+  const handleSaveBill = async () => {
+    if (foundCus !== undefined) {
+      console.log('andr aya');
+      setNeedCus(false);
+      const token = localStorage.getItem('jwt');
+      const bearerToken = 'Bearer ' + token;
+      const billData = {
+        tableName: TableName,
+        discPer: 5,
+        customerID: foundCus.id,
+      };
+      const result = await BillDetailsApi.saveBill(bearerToken, billData);
+      console.log(result);
+      if (result.ok) {
+        localStorage.setItem('billId', result.data.id);
+        history.push('/NewOrder');
+      }
+    } else {
+      console.log('andr aya 2');
+      setNeedCus(true);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -201,6 +229,7 @@ export default function TableList(props) {
       setError1(false);
     }
   };
+
   const handleSearch = async () => {
     setFoundCus(undefined);
     setNotFound(false);
@@ -325,9 +354,15 @@ export default function TableList(props) {
                     color="danger"
                     startIcon={<ReceiptOutlinedIcon />}
                     round
+                    onClick={handleSaveBill}
                   >
                     Save & Print{' '}
                   </ButtonMain>
+                  {needCus && (
+                    <Alert severity="error">
+                      Please Select Customer First !
+                    </Alert>
+                  )}
                 </div>
               </div>
             </CardHeader>
@@ -350,7 +385,9 @@ export default function TableList(props) {
                   />
 
                   {foundCus !== undefined && (
-                    <Alert severity="success">Customer Found</Alert>
+                    <Alert severity="success">
+                      Customer {foundCus.customerName} Found
+                    </Alert>
                   )}
                   {notFound && (
                     <Alert severity="error">Customer Not Found!</Alert>

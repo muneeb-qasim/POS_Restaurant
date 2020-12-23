@@ -179,7 +179,6 @@ export default function VerticalTabs(props) {
   }, []);
 
   const callBack = async (obj) => {
-    console.log('Counter Bhosridka', curr);
     console.log('Obj Call Back', obj);
     if (obj != undefined) {
       curr = obj;
@@ -199,7 +198,6 @@ export default function VerticalTabs(props) {
       }
       console.log('Found  Increment Element', menuItem[found][2] + 1);
       setDecrement(false);
-      //  setDecrementIndex(0);
     }
 
     if (increment) {
@@ -214,8 +212,6 @@ export default function VerticalTabs(props) {
       setMenuItem(() => menuItem);
       console.log('Found  Increment Element', menuItem[found][2] + 1);
       setIncrement(false);
-      // setIncrementIndex(0);
-      // setCot(0);
     }
     if (itemDelete) {
       const found = menuItem.filter((o) => o !== curr);
@@ -223,9 +219,7 @@ export default function VerticalTabs(props) {
 
       setMenuItem(() => found);
       setItemDelete(false);
-      // setCot(0);
     }
-    console.log('increment and decemrent', incrementIndex, decrementIndex);
   };
   const handleChanges = (event) => {
     setAge(Number(event.target.value) || '');
@@ -274,41 +268,52 @@ export default function VerticalTabs(props) {
   };
   const Icon = () => (
     <div>
-      {currentValue.length > 0 && (
-        <Button
-          size="small"
-          color="primary"
-          startIcon={<RemoveOutlinedIcon />}
-          onClick={handleRemoveIcon}
-        ></Button>
-      )}
-      {currentValue.length > 0 && (
-        <Button
-          size="small"
-          color="primary"
-          startIcon={<AddCircleRoundedIcon />}
-          onClick={handlePlusIcon}
-        ></Button>
-      )}{' '}
-      {currentValue.length > 0 && (
-        <Button
-          size="small"
-          color="primary"
-          startIcon={<DeleteIcon />}
-          onClick={handleDeleteIcon}
-        ></Button>
-      )}{' '}
+      <Button
+        size="small"
+        color="primary"
+        startIcon={<RemoveOutlinedIcon />}
+        onClick={handleRemoveIcon}
+      ></Button>
+
+      <Button
+        size="small"
+        color="primary"
+        startIcon={<AddCircleRoundedIcon />}
+        onClick={handlePlusIcon}
+      ></Button>
+
+      <Button
+        size="small"
+        color="primary"
+        startIcon={<DeleteIcon />}
+        onClick={handleDeleteIcon}
+      ></Button>
     </div>
   );
-
-  const handleRemoveIcon = () => {
-    setDecrementIndex(decrementIndex + 1);
-    setDecrement(true);
+  var c = 0;
+  const handleRemoveIcon = async () => {
+    console.log('Increment Index in handle Remove Icon Before', c);
+    await setIncrementIndex(decrementIndex + 1);
+    c = c + 1;
+    console.log(
+      'Increment Index in handle Remove Icon after',
+      decrementIndex,
+      c
+    );
+    if (c > 1) {
+      setDecrement(true);
+      c = 0;
+    }
   };
-  const handlePlusIcon = () => {
-    setIncrementIndex(incrementIndex + 1);
-    console.log('handlePlusIcon', currentValue, curr);
-    setIncrement(true);
+  const handlePlusIcon = async () => {
+    console.log('Increment Index in handle Plus Icon Before', c);
+    await setIncrementIndex(incrementIndex + 1);
+    c = c + 1;
+    console.log('Increment Index in handle Plus Icon after', incrementIndex, c);
+    if (c > 1) {
+      setIncrement(true);
+      c = 0;
+    }
   };
   const handleDeleteIcon = () => {
     setItemDelete(true);

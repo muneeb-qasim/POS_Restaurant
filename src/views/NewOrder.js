@@ -14,11 +14,14 @@ import CardBody from 'components/Card/CardBody.js';
 import CardFooter from 'components/Card/CardFooter.js';
 import CardIcon from 'components/Card/CardIcon.js';
 import CustomInput from 'components/CustomInput/CustomInput.js';
-import ReceiptOutlinedIcon from '@material-ui/icons/ReceiptOutlined';
+import ArrowBack from '@material-ui/icons/ArrowBack';
 import TextField from '@material-ui/core/TextField';
 import TableCard from '../components/KotCard/TableCard';
 
+import {Link, useHistory} from 'react-router-dom';
+import ButtonMain from 'components/CustomButtons/Button.js';
 import OrderTableApi from '../api/Order';
+
 const styles = {
   cardCategoryWhite: {
     '&,& a,& a:hover,& a:focus': {
@@ -66,6 +69,7 @@ export default function NewOrder() {
   const [table, setTable] = useState();
   const classes = useStyles();
 
+  const history = useHistory();
   useEffect(() => {
     (async () => {
       const token = localStorage.getItem('jwt');
@@ -77,6 +81,13 @@ export default function NewOrder() {
   }, [table]);
   return (
     <div className={classes.bill}>
+      <ButtonMain
+        onClick={() => history.push('/Dashboard')}
+        color="danger"
+        startIcon={<ArrowBack />}
+      >
+        Back
+      </ButtonMain>
       <GridContainer className={classes.bill}>
         <GridItem xs={12} sm={12} md={12}>
           <Card>

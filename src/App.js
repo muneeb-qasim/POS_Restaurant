@@ -18,6 +18,7 @@ import MakePayment from '../src/views/MakePayment';
 
 import KotScreen from "views/KotScreen";
 import NewOrder from "views/NewOrder";
+import Dashboard from "views/Dashboard";
 
 function App() {
   return (
@@ -32,10 +33,11 @@ function App() {
         <Route path="/MakePayment" component={MakePayment} />
         <Route path="/KotScreen" component={KotScreen} />
       <Route path="/NewOrder" component={NewOrder} />
-
+      <Route path="/Dashboard" component={Dashboard} />
+{/* 
         <Route path="/admin" component={Admin} />
-        <Route path="/rtl" component={RTL} />
-        <Redirect to="/admin" />
+       <Route path="/rtl" component={RTL} /> */}
+        <Redirect to="/Dashboard" />
       </Switch>
     </BrowserRouter>
   );

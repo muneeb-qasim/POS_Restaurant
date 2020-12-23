@@ -95,8 +95,14 @@ export default function NewOrder({title, addItem, makeBill, makePayment}) {
                 </Button>
               )}
               {makePayment && (
-                <Button color="warning" size="Large">
-                  Make Payment
+                <Button color="danger" size="Large">
+                <Link  to={{
+                      pathname: '/MakePayment',
+                      state: {
+                        TableName: title,
+                      },
+                    }}> Make Payment</Link>
+             
                 </Button>
               )}
             </CardHeader>

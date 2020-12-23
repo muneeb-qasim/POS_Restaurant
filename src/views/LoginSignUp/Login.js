@@ -43,7 +43,7 @@ function Login() {
       setError1(false);
       localStorage.setItem('jwt', result.data.token);
       localStorage.setItem('user',result.data.username );
-      history.push('/admin');
+      history.push('/Dashboard');
     } else {
       setError1(true);
     }
