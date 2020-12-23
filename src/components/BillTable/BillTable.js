@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 // @material-ui/core components
 import {makeStyles} from '@material-ui/core/styles';
 import Icon from '@material-ui/core/Icon';
@@ -17,7 +17,6 @@ import CustomInput from 'components/CustomInput/CustomInput.js';
 import ReceiptOutlinedIcon from '@material-ui/icons/ReceiptOutlined';
 import TextField from '@material-ui/core/TextField';
 
-import {Link, useHistory} from 'react-router-dom';
 const styles = {
   cardCategoryWhite: {
     '&,& a,& a:hover,& a:focus': {
@@ -50,7 +49,8 @@ const styles = {
     },
   },
   bill: {
-    margin: '1%',
+    margin: '5%',
+    marginTop: '5%',
   },
   icons: {
     alignItems: 'center',
@@ -60,49 +60,29 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-export default function NewOrder({title, addItem, makeBill, makePayment}) {
+export default function BillTable({data}) {
+  console.log('Data Created Cahal', data);
+  
   const classes = useStyles();
+
   return (
     <div className={classes.bill}>
-      <GridContainer className={classes.bill}>
-        <GridItem xs={12} sm={12} md={12}>
-          <Card>
-            <CardHeader color="primary">
-              <h4 className={classes.cardTitleWhite}>Table No {title}</h4>
-
-              {addItem && (
-                <Button color="warning" size="Large">
-                  <Link
-                    to={{
-                      pathname: '/KotScreen',
-                      state: {
-                        TableName: title,
-                      },
-                    }}
-                  >
-                    Add Item
-                  </Link>
-                </Button>
-              )}
-              {makeBill && (
-                <Button color="info" size="Large">
-                  <Link  to={{
-                      pathname: '/BillScreen',
-                      state: {
-                        TableName: title,
-                      },
-                    }}> Make Bill</Link>
-                </Button>
-              )}
-              {makePayment && (
-                <Button color="warning" size="Large">
-                  Make Payment
-                </Button>
-              )}
-            </CardHeader>
-          </Card>
-        </GridItem>
-      </GridContainer>
+      <Table
+        tableHeaderColor="primary"
+        tableHead={[
+          'SL',
+          'Item',
+          'Qty',
+          'Rate',
+          'Taxable',
+          'CGST',
+          'SGST',
+          'IGST',
+          'Cess',
+          'Amount',
+        ]}
+        tableData={data}
+      />
     </div>
   );
 }

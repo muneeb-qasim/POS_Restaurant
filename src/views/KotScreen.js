@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
@@ -18,23 +18,28 @@ import Button from '@material-ui/core/Button';
 import ReceiptOutlinedIcon from '@material-ui/icons/ReceiptOutlined';
 import RemoveOutlinedIcon from '@material-ui/icons/RemoveOutlined';
 import BrushOutlinedIcon from '@material-ui/icons/BrushOutlined';
+import AddCircleRoundedIcon from '@material-ui/icons/AddCircleRounded';
+import DeleteIcon from '@material-ui/icons/Delete';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import InputLabel from '@material-ui/core/InputLabel';
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
 
-import WaiterApi from '../api/Order';
+import OrderKotApi from '../api/Order';
+
+import {Link, useHistory} from 'react-router-dom';
 import {
   successColor,
   whiteColor,
   grayColor,
   hexToRgb,
 } from 'assets/jss/material-dashboard-react.js';
+import {isReturnStatement, updateNonNullExpression} from 'typescript';
+import Alert from '@material-ui/lab/Alert';
 
 function TabPanel(props) {
   const {children, value, index, ...other} = props;
@@ -83,42 +88,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     height: '100%',
   },
-  stats: {
-    color: grayColor[0],
-    display: 'inline-flex',
-    fontSize: '12px',
-    lineHeight: '22px',
-    '& svg': {
-      top: '4px',
-      width: '16px',
-      height: '16px',
-      position: 'relative',
-      marginRight: '3px',
-      marginLeft: '3px',
-    },
-    '& .fab,& .fas,& .far,& .fal,& .material-icons': {
-      top: '4px',
-      fontSize: '16px',
-      position: 'relative',
-      marginRight: '3px',
-      marginLeft: '3px',
-    },
-  },
-  cardCategory: {
-    color: grayColor[0],
-    margin: '0',
-    fontSize: '14px',
-    marginTop: '0',
-    paddingTop: '10px',
-    marginBottom: '0',
-  },
-  cardCategoryWhite: {
-    color: 'rgba(' + hexToRgb(whiteColor) + ',.62)',
-    margin: '0',
-    fontSize: '14px',
-    marginTop: '0',
-    marginBottom: '0',
-  },
+
   cardTitle: {
     color: grayColor[2],
     marginTop: '0px',
@@ -170,24 +140,93 @@ const subMenu = [
 ];
 //const tableData = [["1", "Veg Manchurian", "12345", "12", "1 USD", "+"]];
 
-export default function VerticalTabs() {
+export default function VerticalTabs(props) {
   const classes = useStyles();
+
+  const history = useHistory();
   const [value, setValue] = React.useState(0);
+  const [value1, setValue1] = React.useState();
   const [menuItem, setMenuItem] = React.useState([]);
+  const [category, setCategory] = React.useState();
+  const [itemCat, setItemCat] = React.useState();
   const [submenu, setSubMenu] = React.useState(subMenu);
+  const [currentValue, setCurrentValue] = React.useState([]);
+  const [decrement, setDecrement] = React.useState(false);
+  const [increment, setIncrement] = React.useState(false);
+  const [itemDelete, setItemDelete] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [age, setAge] = React.useState('');
   const [waiterList, setWaiterList] = React.useState();
+  const [cot, setCot] = React.useState(0);
+  const {TableName} = props.location.state;
+  const [incrementIndex, setIncrementIndex] = React.useState(0);
+  const [decrementIndex, setDecrementIndex] = React.useState(0);
+
+  const [error1, setError1] = React.useState(false);
+  let curr = null;
 
   useEffect(() => {
     (async () => {
       const token = localStorage.getItem('jwt');
       const bearerToken = 'Bearer ' + token;
-      const result = await WaiterApi.getKot(bearerToken);
-      console.log('Data', result.data);
-      setWaiterList(result.data);
+      const result = await OrderKotApi.getCategory(bearerToken);
+      const resultWaiter = await OrderKotApi.getKot(bearerToken);
+      console.log(result.data);
+
+      setCategory(result.data);
+      setWaiterList(resultWaiter.data);
     })();
   }, []);
+
+  const callBack = async (obj) => {
+    console.log('Counter Bhosridka', curr);
+    console.log('Obj Call Back', obj);
+    if (obj != undefined) {
+      curr = obj;
+      setCurrentValue(obj);
+    }
+    console.log('Decrement State', decrement);
+    if (decrement) {
+      const foundPrice = itemCat.find((o) => o.itemCode == curr[1]);
+
+      const found = menuItem.findIndex((o) => o == curr);
+      console.log('Curr', curr[1], foundPrice);
+      const actualPrice = foundPrice.mrp;
+      if (menuItem[found][2] > 1 && actualPrice > 1) {
+        menuItem[found][2] = menuItem[found][2] - 1;
+        menuItem[found][3] = menuItem[found][3] - actualPrice;
+        setMenuItem(() => menuItem);
+      }
+      console.log('Found  Increment Element', menuItem[found][2] + 1);
+      setDecrement(false);
+      //  setDecrementIndex(0);
+    }
+
+    if (increment) {
+      const foundPrice = itemCat.find((o) => o.itemCode == curr[1]);
+
+      const found = menuItem.findIndex((o) => o == curr);
+      console.log('Curr', curr[1], foundPrice);
+      const actualPrice = foundPrice.mrp;
+
+      menuItem[found][2] = 1 + menuItem[found][2];
+      menuItem[found][3] = menuItem[found][3] + actualPrice;
+      setMenuItem(() => menuItem);
+      console.log('Found  Increment Element', menuItem[found][2] + 1);
+      setIncrement(false);
+      // setIncrementIndex(0);
+      // setCot(0);
+    }
+    if (itemDelete) {
+      const found = menuItem.filter((o) => o !== curr);
+      console.log('Curr', found);
+
+      setMenuItem(() => found);
+      setItemDelete(false);
+      // setCot(0);
+    }
+    console.log('increment and decemrent', incrementIndex, decrementIndex);
+  };
   const handleChanges = (event) => {
     setAge(Number(event.target.value) || '');
   };
@@ -199,58 +238,102 @@ export default function VerticalTabs() {
     setOpen(false);
   };
 
-  let curr = null;
-
-  const callBack = async (obj) => {
-    console.log('Obj Call Back', obj);
-    if (obj != undefined) {
-      curr = obj;
-    }
-    handleRemoveIcon(curr, false, menuItem);
+  const objCreation = (sl, itemcode, qty, price, childId) => {
+    const objItem = {
+      productChildID: childId,
+      itemCode: itemcode,
+      itemName: '',
+      qty: qty,
+      rate: price,
+      remarks: '',
+    };
+    return objItem;
   };
-
-  const Icon = (obj) => (
+  const handleSaveKot = async () => {
+    if (menuItem.length > 0) {
+      setError1(false);
+      const arrItem = menuItem.map((e) =>
+        objCreation(e[0], e[1], e[2], e[3], e[5])
+      );
+      const saveData = {
+        itemList: [arrItem][0],
+        tableName: TableName,
+        person: 2,
+        salesManID: 0,
+      };
+      const token = localStorage.getItem('jwt');
+      const bearerToken = 'Bearer ' + token;
+      const result = await OrderKotApi.saveKot(bearerToken, saveData);
+      console.log(result);
+      if (result.ok) {
+        history.push('/NewOrder');
+      }
+    } else {
+      setError1(true);
+    }
+  };
+  const Icon = () => (
     <div>
-      <Button
-        size="small"
-        color="primary"
-        startIcon={<RemoveOutlinedIcon />}
-        onClick={() => handleRemoveIcon(obj, true, menuItem)}
-      ></Button>
-      <Button
-        size="small"
-        color="primary"
-        startIcon={<BrushOutlinedIcon />}
-        onClick={console.log('Edit Pressing', obj)}
-      ></Button>
+      {currentValue.length > 0 && (
+        <Button
+          size="small"
+          color="primary"
+          startIcon={<RemoveOutlinedIcon />}
+          onClick={handleRemoveIcon}
+        ></Button>
+      )}
+      {currentValue.length > 0 && (
+        <Button
+          size="small"
+          color="primary"
+          startIcon={<AddCircleRoundedIcon />}
+          onClick={handlePlusIcon}
+        ></Button>
+      )}{' '}
+      {currentValue.length > 0 && (
+        <Button
+          size="small"
+          color="primary"
+          startIcon={<DeleteIcon />}
+          onClick={handleDeleteIcon}
+        ></Button>
+      )}{' '}
     </div>
   );
 
-  const handleRemoveIcon = (obj, type, menu) => {
-    console.log('REmove Obj ', obj, menuItem);
-    if (type) {
-      console.log('Type Of Delete ', type);
-      const found = menuItem.find((o) => console.log('Found', o));
-
-      console.log('Found', found);
+  const handleRemoveIcon = () => {
+    setDecrementIndex(decrementIndex + 1);
+    setDecrement(true);
+  };
+  const handlePlusIcon = () => {
+    setIncrementIndex(incrementIndex + 1);
+    console.log('handlePlusIcon', currentValue, curr);
+    setIncrement(true);
+  };
+  const handleDeleteIcon = () => {
+    setItemDelete(true);
+  };
+  const handleChoose = async (title, price, count, childId) => {
+    if (menuItem !== undefined) {
+      const foundItem = menuItem.find((o) => o[1] == title);
+      console.log('Fount ', foundItem);
+      if (foundItem === undefined) {
+        await setMenuItem(() =>
+          menuItem.concat([[count, title, 1, price, Icon(), childId]])
+        );
+      }
     }
-
-    console.log('Current Value', curr);
- 
   };
 
-  const handleChoose = async (title) => {
-    console.log('Handle Click ', title);
-
-    await setMenuItem(() =>
-      menuItem.concat([['2', title, 3, '4535USD', Icon(title)]])
-    );
-  };
-
-  const handleChange = (event, newValue) => {
+  const handleChange = async (event, newValue) => {
+    const token = localStorage.getItem('jwt');
+    const bearerToken = 'Bearer ' + token;
     setValue(newValue);
+    const res = await OrderKotApi.getItem(bearerToken, newValue);
+    setItemCat(res.data);
+    console.log(newValue);
   };
-
+  let cont = 1;
   return (
     <GridContainer className={classes.bill}>
       <GridItem xs={12} sm={12} md={12}>
@@ -272,47 +355,34 @@ export default function VerticalTabs() {
                 aria-label="Vertical tabs example"
                 className={classes.tabs}
               >
-                <Tab label="Chinese" {...a11yProps(0)} />
-                <Tab label="Tandoor" {...a11yProps(1)} />
-                <Tab label="Soup" {...a11yProps(2)} />
-                <Tab label="Starter" {...a11yProps(3)} />
+                {category !== undefined
+                  ? category.map((obj) => (
+                      <Tab label={obj.categoryName} {...a11yProps(obj.id)} />
+                    ))
+                  : null}
               </Tabs>
-              <TabPanel value={value} index={0} className={classes.tabPanel}>
-                <div className={classes.row}>
-                  {submenu.map((obj) => (
-                    <MenuCard
-                      title={obj.title}
-                      color={obj.color}
-                      onClick={handleChoose}
-                    />
-                  ))}
-                </div>
-                <KotTable data={menuItem} />
-              </TabPanel>
               <TabPanel value={value} index={1} className={classes.tabPanel}>
-                Item Two
-              </TabPanel>
-              <TabPanel value={value} index={2} className={classes.tabPanel}>
-                Item Three
-              </TabPanel>
-              <TabPanel value={value} index={3} className={classes.tabPanel}>
-                Item Four
-              </TabPanel>
-              <TabPanel value={value} index={4} className={classes.tabPanel}>
-                Item Five
-              </TabPanel>
-              <TabPanel value={value} index={5}>
-                Item Six
-              </TabPanel>
-              <TabPanel value={value} index={6}>
-                Item Seven
+                <div className={classes.row}>
+                  {itemCat !== undefined
+                    ? itemCat.map((obj) => (
+                        <MenuCard
+                          title={obj.itemCode}
+                          price={obj.mrp}
+                          count={cont++}
+                          productChildID={obj.productChildId}
+                          color="primary"
+                          onClick={handleChoose}
+                        />
+                      ))
+                    : null}
+                </div>
+                <KotTable data={menuItem} callBack={callBack} />
               </TabPanel>
             </div>
           </CardBody>
           <CardFooter>
             <GridContainer>
               <GridItem xs={12} sm={12} md={12}>
-                {' '}
                 <Button
                   color="secondary"
                   variant="contained"
@@ -366,9 +436,14 @@ export default function VerticalTabs() {
                   color="primary"
                   variant="contained"
                   startIcon={<ReceiptOutlinedIcon />}
+                  onClick={handleSaveKot}
                 >
                   Save & Print{' '}
                 </Button>
+
+                {error1 && (
+                  <Alert severity="warning">Please Add Item in List!</Alert>
+                )}
               </GridItem>
             </GridContainer>
           </CardFooter>

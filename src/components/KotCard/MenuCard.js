@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ContainedButtons({ title, color, onClick }) {
+export default function ContainedButtons({ title,price,count, color,productChildID, onClick }) {
   const classes = useStyles();
 
   return (
@@ -19,7 +19,7 @@ export default function ContainedButtons({ title, color, onClick }) {
         variant="contained"
         color={color}
         size="Large"
-        onClick={() => onClick(title)}
+        onClick={() => onClick(title,price,count,productChildID)}
       >
         {title}
       </Button>
