@@ -44,7 +44,6 @@ export default function CustomTable(props) {
                     <TableCell
                       className={classes.tableCell}
                       key={key}
-                      onClick={() => tableOnClick(obj)}
                     >
                       {prop}
                     </TableCell>

@@ -27,11 +27,8 @@ import OrderKotApi from '../api/Order';
 import ArrowBack from '@material-ui/icons/ArrowBack';
 
 import ButtonMain from 'components/CustomButtons/Button.js';
-import { useHistory} from 'react-router-dom';
-import {
-  whiteColor,
-  grayColor,
-} from 'assets/jss/material-dashboard-react.js';
+import {useHistory} from 'react-router-dom';
+import {whiteColor, grayColor} from 'assets/jss/material-dashboard-react.js';
 import Alert from '@material-ui/lab/Alert';
 
 function TabPanel(props) {
@@ -78,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
   },
   tabPanel: {
     width: '100%',
-    height: '100%',
+    height: '50%',
   },
 
   cardTitle: {
@@ -138,7 +135,9 @@ export default function VerticalTabs(props) {
   const [currentObject, setCurrentObject] = React.useState();
   const {TableName} = props.location.state;
   const [error1, setError1] = React.useState(false);
-
+  const [newTab, setNewTab] = React.useState(0);
+  const [againClick, setAgainClick] = React.useState(false);
+  const [refresh, setRefresh] = React.useState(false);
   useEffect(() => {
     (async () => {
       const token = localStorage.getItem('jwt');
@@ -159,39 +158,62 @@ export default function VerticalTabs(props) {
       if (remove) {
         handleRemove();
       }
+      if (againClick) {
+        handleAgainClickIncrement();
+      }
     })();
-  }, [increment, decrement, remove]);
+  }, [increment, decrement, remove, againClick, menuItem, refresh]);
   //====================================================
   const handleIncrement = () => {
     console.log('in COt', increment);
     const foundPrice = itemCat.find((o) => o.itemCode === currentObject[1]);
     const found = menuItem.findIndex((o) => o === currentObject);
     console.log('Curr', currentObject[1], foundPrice);
+    if (found != undefined) {
+      const actualPrice = foundPrice.mrp;
+      menuItem[found][2] = 1 + menuItem[found][2];
+      menuItem[found][3] = menuItem[found][3] + actualPrice;
+      setMenuItem(menuItem);
+      console.log('menuItem[found][3] ', menuItem[found][3]);
+      setIncrement(false);
+    }
+  };
+
+  //====================================================
+  const handleAgainClickIncrement = async () => {
+    console.log('Agya ha ');
+    const foundPrice = itemCat.find((o) => o.itemCode === currentObject[1]);
     const actualPrice = foundPrice.mrp;
-    menuItem[found][2] = 1 + menuItem[found][2];
-    menuItem[found][3] = menuItem[found][3] + actualPrice;
-    setMenuItem(menuItem);
-    console.log('menuItem[found][3] ', menuItem[found][3]);
-    setIncrement(false);
+    const foundItem = menuItem.findIndex((o) => o[1] == currentObject[1]);
+    console.log('menuItem Increase', actualPrice);
+    menuItem[foundItem][2] = 1 + menuItem[foundItem][2];
+    menuItem[foundItem][3] = menuItem[foundItem][3] + actualPrice;
+    console.log('menuItem Increase', menuItem[foundItem][2], actualPrice);
+    await setMenuItem(() => menuItem);
+    setAgainClick(false);
   };
   //====================================================
   const handleRemove = () => {
     console.log('in handleRemove', remove);
     const found = menuItem.filter((o) => o !== currentObject);
-    setMenuItem(() => found);
-    setRemove(false);
+    if (found != undefined) {
+      setMenuItem(() => found);
+      setRemove(false);
+    }
   };
   //=====================================================
   const handleDecrement = () => {
     console.log('in Decrement', decrement);
     const foundPrice = itemCat.find((o) => o.itemCode === currentObject[1]);
     const found = menuItem.findIndex((o) => o == currentObject);
-    const actualPrice = foundPrice.mrp;
-    if (menuItem[found][2] > 1 && actualPrice > 1) {
-      menuItem[found][2] = menuItem[found][2] - 1;
-      menuItem[found][3] = menuItem[found][3] - actualPrice;
-      setMenuItem(menuItem);
-      setDecrement(false);
+    if (found != undefined) {
+      const actualPrice = foundPrice.mrp;
+      if (menuItem[found][2] > 1 && actualPrice > 1) {
+        menuItem[found][2] = menuItem[found][2] - 1;
+        menuItem[found][3] = menuItem[found][3] - actualPrice;
+        setMenuItem(menuItem);
+        setDecrement(false);
+      }
     }
   };
   //=========================================================
@@ -264,24 +286,35 @@ export default function VerticalTabs(props) {
   //=========================================================
   const handleChoose = async (title, price, count, childId) => {
     console.log('childId', childId);
+    setRefresh(true);
     if (menuItem !== undefined) {
-      const foundItem = menuItem.find((o) => o[1] == title);
+      setRefresh(true);
+      const foundItem = menuItem.findIndex((o) => o[1] == title);
       console.log('Fount ', foundItem);
-      if (foundItem === undefined) {
+      if (foundItem === -1) {
         await setMenuItem(() =>
           menuItem.concat([[count, title, 1, price, childId]])
         );
+      } else {
+        console.log('Else Part');
+        setAgainClick(true);
+        setCurrentObject([count, title, 1, price, childId]);
       }
     }
   };
 
   //===========================================================
   const handleChange = async (event, newValue) => {
+    console.log(event, newValue, category[newValue]);
+    setNewTab(newValue);
     const token = localStorage.getItem('jwt');
     const bearerToken = 'Bearer ' + token;
     setValue(newValue);
     const res = await OrderKotApi.getItem(bearerToken, newValue);
-    setItemCat(res.data);
+
+    setItemCat(
+      res.data.filter((e) => e.categoryName == category[newValue].categoryName)
+    );
     console.log(newValue);
   };
   //============================================================
@@ -306,6 +339,9 @@ export default function VerticalTabs(props) {
             </CardHeader>
 
             <CardBody>
+              <Typography variant="h6" color="textSecondary" component="p">
+                Select Department
+              </Typography>
               <div className={classes.root}>
                 <Tabs
                   orientation="vertical"
@@ -321,7 +357,11 @@ export default function VerticalTabs(props) {
                       ))
                     : null}
                 </Tabs>
-                <TabPanel value={value} index={1} className={classes.tabPanel}>
+                <TabPanel
+                  value={value}
+                  index={newTab}
+                  className={classes.tabPanel}
+                >
                   <div className={classes.row}>
                     {itemCat !== undefined
                       ? itemCat.map((obj) => (
@@ -336,19 +376,21 @@ export default function VerticalTabs(props) {
                         ))
                       : null}
                   </div>
-
+                </TabPanel>
+              </div>
+            </CardBody>
+              <GridContainer>
+                <GridItem xs={12} sm={12} md={12}>
                   <NewTableCard
                     data={menuItem}
                     callBackIncrement={handlePlusIcon}
                     callBackDecrement={handleRemoveIcon}
                     callBackRemove={handleDeleteIcon}
-                  />
-                </TabPanel>
-              </div>
-            </CardBody>
-            <CardFooter>
-              <GridContainer>
-                <GridItem xs={12} sm={12} md={12}>
+                  />{' '}
+                </GridItem>
+
+                <GridItem xs={5} sm={5} md={5}></GridItem>
+                <GridItem xs={7} sm={7} md={7}>
                   <Button
                     color="secondary"
                     variant="contained"
@@ -396,10 +438,7 @@ export default function VerticalTabs(props) {
                       </Button>
                     </DialogActions>
                   </Dialog>
-                </GridItem>
-              </GridContainer>
-              <GridContainer>
-                <GridItem xs={12} sm={12} md={12}>
+
                   <Button
                     color="primary"
                     variant="contained"
@@ -414,7 +453,6 @@ export default function VerticalTabs(props) {
                   )}
                 </GridItem>
               </GridContainer>
-            </CardFooter>
           </Card>
         </GridItem>
       </GridContainer>

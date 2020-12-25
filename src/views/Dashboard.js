@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useContext} from 'react';
 import {fade, makeStyles} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -15,8 +15,9 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import {Row, Col} from 'react-bootstrap';
 import Icon from '@material-ui/core/Icon';
-
-import { useHistory} from 'react-router-dom';
+import disableBrowserBackButton from 'disable-browser-back-navigation';
+import {useHistory} from 'react-router-dom';
+import {UserContext} from '../App';
 import ButtonMain from 'components/CustomButtons/Button.js';
 import saleApi from '../api/Order';
 const useStyles = makeStyles((theme) => ({
@@ -94,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Dashboard() {
   const classes = useStyles();
-
+  const {state, dispatch} = useContext(UserContext);
   const history = useHistory();
 
   const [totSaleDay, setTotSaleDay] = React.useState();
@@ -107,12 +108,24 @@ export default function Dashboard() {
 
   React.useEffect(() => {
     (async () => {
+     
       const token = localStorage.getItem('jwt');
+      const time = localStorage.getItem('expiry');
       const bearerToken = 'Bearer ' + token;
       const result = await saleApi.getTotSale(bearerToken);
-      //  console.log(result.data[0].count);
-      setTotSaleDay(result.data[0].total);
-      setTotBills(result.data[0].count);
+      // console.log('result', result.ok);
+      if (result.ok !== false) {
+        setTotSaleDay(result.data[0].total);
+        setTotBills(result.data[0].count);
+      }
+      var myDate = new Date(time);
+      var res = myDate.getTime();
+      if (res < new Date().getTime()) {
+        localStorage.clear();
+      }
+      if (res > new Date().getTime()) {
+        disableBrowserBackButton();
+      }
     })();
   }, [totBills, totSaleDay]);
   const handleProfileMenuOpen = (event) => {
@@ -147,6 +160,7 @@ export default function Dashboard() {
       <MenuItem
         onClick={() => {
           localStorage.clear();
+          dispatch({type: 'CLEAR'});
           history.push('/Login');
         }}
       >
@@ -166,16 +180,15 @@ export default function Dashboard() {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
+      <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
+      <MenuItem
+        onClick={() => {
+          localStorage.clear();
+          dispatch({type: 'CLEAR'});
+          history.push('/Login');
+        }}
+      >
+        LogOut
       </MenuItem>
     </Menu>
   );

@@ -1,11 +1,15 @@
-import React, {useState} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import AuthApi from '../../api/Auth';
 import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+import disableBrowserBackButton from 'disable-browser-back-navigation';
+import {UserContext} from '../../App';
 import {Link, useHistory} from 'react-router-dom';
 function Login() {
   const history = useHistory();
+
+  const {state, dispatch} = useContext(UserContext);
   const [tenantID, setTenantID] = useState();
   const [error, setError] = useState(false);
   const [error1, setError1] = useState(false);
@@ -15,6 +19,9 @@ function Login() {
   const [userPassword, setUserPassword] = useState();
   const FYID = 1;
 
+  useEffect(() => {
+    disableBrowserBackButton();
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -41,8 +48,11 @@ function Login() {
     setLoading(false);
     if (result.ok) {
       setError1(false);
+      console.log(result.data);
       localStorage.setItem('jwt', result.data.token);
       localStorage.setItem('user', result.data.username);
+      localStorage.setItem('expiry', result.data.expiration);
+      dispatch({type: 'USER', payload: result.data.username});
       history.push('/Dashboard');
     } else {
       setError1(true);

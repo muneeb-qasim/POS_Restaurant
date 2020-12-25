@@ -13,7 +13,7 @@ import CardBody from 'components/Card/CardBody.js';
 import CardFooter from 'components/Card/CardFooter.js';
 import ReceiptOutlinedIcon from '@material-ui/icons/ReceiptOutlined';
 import TextField from '@material-ui/core/TextField';
-import {Modal, ModalHeader, ModalBody, } from 'reactstrap';
+import {Modal, ModalHeader, ModalBody} from 'reactstrap';
 import SearchBar from 'material-ui-search-bar';
 import Button from '@material-ui/core/Button';
 
@@ -27,6 +27,7 @@ import BillDetailsApi from '../api/Order';
 import BillTable from '../components/BillTable/BillTable';
 
 import {useHistory} from 'react-router-dom';
+import {ViewArrayTwoTone} from '@material-ui/icons';
 const styles = {
   cardCategoryWhite: {
     '&,& a,& a:hover,& a:focus': {
@@ -90,12 +91,14 @@ export default function TableList(props) {
   const [address2, setAddress2] = useState();
   const [mobile, setMobile] = useState();
   const [email, setEmail] = useState();
+  const [discPer, setDiscPer] = useState(0);
   const [gstNumber, setGstNumber] = useState();
   const [error, setError] = useState(false);
   const [error1, setError1] = useState(false);
   const [loading, setLoading] = useState(false);
   const [needCus, setNeedCus] = useState(false);
   const [billData, setBillData] = useState();
+  const [screenBill, setScreenBill] = useState();
   const [totAmount, setTotAmount] = useState(0.0);
   const {TableName} = props.location.state;
   const arrCreation = (
@@ -124,6 +127,10 @@ export default function TableList(props) {
     ];
     return arrayItem;
   };
+  const arrCreation2 = (mrp, cgstper, sgstper, qty) => {
+    const arrayItem = [mrp, cgstper, sgstper, qty];
+    return arrayItem;
+  };
 
   const arrData = (bilData) => {
     var count = 1;
@@ -150,6 +157,13 @@ export default function TableList(props) {
 
     return billDataDet;
   };
+  const arrData2 = (bilData) => {
+    const billDataDet = bilData.map((e) =>
+      arrCreation2(e.mrp, e.cgstper, e.sgstper, e.quantity)
+    );
+
+    return billDataDet;
+  };
   useEffect(() => {
     (async () => {
       const token = localStorage.getItem('jwt');
@@ -159,12 +173,53 @@ export default function TableList(props) {
         TableName
       );
       console.log(result.data);
-      arrData(result.data);
+      setScreenBill(arrData2(result.data));
       setBillData(arrData(result.data));
     })();
   }, []);
 
   const toggle = () => setModal(!modal);
+  var loop = 0;
+  const applyDiscount = () => {
+    if (discPer !== undefined) {
+      const loopLen = screenBill.map((e) => {
+        return loop++;
+      });
+      const size = loopLen.length;
+      var newArr = [];
+
+      var netAmount = 0;
+      for (var i = 0; i < size; i++) {
+        var innerArr = [];
+        var SL = billData[i][0];
+        var item = billData[i][1];
+        var Qty = billData[i][2];
+        var IGST = billData[i][7];
+        var Cess = billData[i][8];
+        var Rate = screenBill[i][0] - (screenBill[i][0] * discPer) / 100;
+        var Taxable = Rate * -1 * screenBill[i][3];
+        var CGST = Taxable * screenBill[i][1];
+        var SGST = Taxable * screenBill[i][2];
+        var Amount = Taxable + CGST + SGST;
+        netAmount = netAmount + Amount;
+        innerArr = [
+          SL,
+          item,
+          Qty,
+          Rate,
+          Taxable,
+          CGST,
+          SGST,
+          IGST,
+          Cess,
+          Amount,
+        ];
+        newArr[i] = innerArr;
+      }
+      setTotAmount(netAmount);
+      setBillData(newArr);
+    }
+  };
 
   const handleSaveBill = async () => {
     if (foundCus !== undefined) {
@@ -174,9 +229,10 @@ export default function TableList(props) {
       const bearerToken = 'Bearer ' + token;
       const billData = {
         tableName: TableName,
-        discPer: 5,
+        discPer: parseInt(discPer),
         customerID: foundCus.id,
       };
+      console.log('andr aya',billData);
       const result = await BillDetailsApi.saveBill(bearerToken, billData);
       console.log(result);
       if (result.ok) {
@@ -336,91 +392,101 @@ export default function TableList(props) {
           </div>
         </ModalBody>
       </Modal>
-      
-    <div className={classes.bill}>
-      <GridContainer className={classes.bill}>
-        <GridItem xs={12} sm={12} md={12}>
-        <ButtonMain
-        onClick={() => history.push('/NewOrder')}
-        color="danger"
-        startIcon={<ArrowBack />}
-      >
-        Back
-      </ButtonMain>
-          <Card>
-            <CardHeader color="warning">
-              <div className="row">
-                <div className="col-sm-8 col-md-8 col-lg-10">
-                  <h4 className={classes.cardTitleWhite}>Bill Screen</h4>
+
+      <div className={classes.bill}>
+        <GridContainer className={classes.bill}>
+          <GridItem xs={12} sm={12} md={12}>
+            <ButtonMain
+              onClick={() => history.push('/NewOrder')}
+              color="danger"
+              startIcon={<ArrowBack />}
+            >
+              Back
+            </ButtonMain>
+            <Card>
+              <CardHeader color="warning">
+                <div className="row">
+                  <div className="col-sm-8 col-md-8 col-lg-10">
+                    <h4 className={classes.cardTitleWhite}>Bill Screen</h4>
+                  </div>
+                  <div className="col-sm-4 col-md-4 col-lg-2">
+                    <ButtonMain
+                      color="danger"
+                      startIcon={<ReceiptOutlinedIcon />}
+                      round
+                      onClick={handleSaveBill}
+                    >
+                      Save & Print{' '}
+                    </ButtonMain>
+                    {needCus && (
+                      <Alert severity="error">
+                        Please Select Customer First !
+                      </Alert>
+                    )}
+                  </div>
                 </div>
-                <div className="col-sm-4 col-md-4 col-lg-2">
-                  <ButtonMain
-                    color="danger"
-                    startIcon={<ReceiptOutlinedIcon />}
-                    round
-                    onClick={handleSaveBill}
-                  >
-                    Save & Print{' '}
-                  </ButtonMain>
-                  {needCus && (
-                    <Alert severity="error">
-                      Please Select Customer First !
-                    </Alert>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            {/* <div className={classes.icons}>
+              </CardHeader>
+              {/* <div className={classes.icons}>
             <CardIcon color="warning" className={classes.icons}>
               {" "}
             </CardIcon>
           </div> */}
-            <CardBody>
-              {billData !== undefined ? <BillTable data={billData} /> : null}
-            </CardBody>
-            <CardFooter>
-              <div className="row">
-                <div className="col-md-6">
-                  <SearchBar
-                    value={seaCustomer}
-                    onChange={(key) => setSeaCustomer(key)}
-                    onRequestSearch={handleSearch}
-                    placeholder="Search Customer"
-                  />
+              <CardBody>
+                <TextField
+                  label="Discount"
+                  id="standard-size-normal"
+                  placeholder="%"
+                  value={discPer}
+                  onChange={(e) => setDiscPer(e.target.value)}
+                />
+                <ButtonMain onClick={applyDiscount} color="danger" round>
+                  Apply
+                </ButtonMain>
+                {billData !== undefined ? <BillTable data={billData} /> : null}
+              </CardBody>
+              <CardFooter>
+                <div className="row">
+                  <div className="col-md-6">
+                    <SearchBar
+                      value={seaCustomer}
+                      onChange={(key) => setSeaCustomer(key)}
+                      onRequestSearch={handleSearch}
+                      placeholder="Search Customer"
+                    />
 
-                  {foundCus !== undefined && (
-                    <Alert severity="success">
-                      Customer {foundCus.customerName} Found
-                    </Alert>
-                  )}
-                  {notFound && (
-                    <Alert severity="error">Customer Not Found!</Alert>
-                  )}
+                    {foundCus !== undefined && (
+                      <Alert severity="success">
+                        Customer {foundCus.customerName} Found
+                      </Alert>
+                    )}
+                    {notFound && (
+                      <Alert severity="error">Customer Not Found!</Alert>
+                    )}
+                  </div>
+                  <div className="col-md-6">
+                    <p>
+                      Customer Not Found?
+                      <Button color="secondary" onClick={toggle}>
+                        Add Customer
+                      </Button>
+                    </p>
+                  </div>
                 </div>
-                <div className="col-md-6">
-                  <p>
-                    Customer Not Found?
-                    <Button color="secondary" onClick={toggle}>
-                      Add Customer
-                    </Button>
-                  </p>
-                </div>
-              </div>
-              <GridContainer>
-                <GridItem xs={12} sm={12} md={12}>
-                  <TextField
-                    label="Net Amount"
-                    disabled
-                    id="standard-size-normal"
-                    defaultValue="   000"
-                    value={totAmount}
-                  />
-                </GridItem>
-              </GridContainer>
-            </CardFooter>
-          </Card>
-        </GridItem>
-      </GridContainer>
+                <GridContainer>
+                  <GridItem xs={12} sm={12} md={12}>
+                    <TextField
+                      label="Net Amount"
+                      disabled
+                      id="standard-size-normal"
+                      defaultValue="   000"
+                      value={totAmount}
+                    />
+                  </GridItem>
+                </GridContainer>
+              </CardFooter>
+            </Card>
+          </GridItem>
+        </GridContainer>
       </div>
     </>
   );
