@@ -32,7 +32,7 @@ function App() {
         {/* 
         <Route path="/admin" component={Admin} />
        <Route path="/rtl" component={RTL} /> */}
-        <Redirect to="/Dashboard" />
+        <Redirect to="/Login" />
       </Switch>
     </BrowserRouter>
   );
