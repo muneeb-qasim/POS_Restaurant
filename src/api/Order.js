@@ -52,11 +52,53 @@ const getBillDetails = (token, tableName) => {
 };
 
 const saveBill = (token, billData) => {
+  return client.post('/api/rest/kot-bill/save-bill', billData, {
+    headers: {Authorization: token},
+  });
+};
+const getBillID = (token, tableData) => {
   return client.post(
-    '/api/rest/kot-bill/save-bill',
-    billData,
+    `/api/rest/kot/get-billdetails-table?tableName=${tableData}`,
+    null,
     {
       headers: {Authorization: token},
+    }
+  );
+};
+const makePay = (token, mokData) => {
+  return client.post(
+'/api/rest/kot/make-payment',
+mokData,
+    {
+      headers: {Authorization: token},
+    }
+  );
+};
+const getMOP = (token) => {
+  return client.get(
+    'api/rest/kot/get-mop-master',
+    {table: null},
+    {
+      headers: {Authorization: token},
+    }
+  );
+};
+const getTotSale = (token) => {
+  return client.get(
+    '/api/rest/kot-bill/get-total-sale-day',
+    {table: null},
+    {
+      headers: {Authorization: token},
+    }
+  );
+};
+const getBillReport = (token,startDate,endDate) => {
+  return client.post(
+    '/api/rest/kot-bill/get-bill-report',
+    {startDate,endDate},
+    {
+      headers: {Authorization: token}
+      
     }
   );
 };
@@ -67,5 +109,10 @@ export default {
   getItem,
   saveKot,
   getBillDetails,
-  saveBill
+  saveBill,
+  getMOP,
+  getBillID,
+  makePay,
+  getTotSale,
+  getBillReport
 };

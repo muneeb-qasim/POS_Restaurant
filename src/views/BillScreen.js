@@ -6,20 +6,18 @@ import Icon from '@material-ui/core/Icon';
 // core components
 import GridItem from 'components/Grid/GridItem.js';
 import GridContainer from 'components/Grid/GridContainer.js';
-import Table from 'components/Table/Table.js';
 import Card from 'components/Card/Card.js';
 import CardHeader from 'components/Card/CardHeader.js';
 import ButtonMain from 'components/CustomButtons/Button.js';
 import CardBody from 'components/Card/CardBody.js';
 import CardFooter from 'components/Card/CardFooter.js';
-import CardIcon from 'components/Card/CardIcon.js';
-import CustomInput from 'components/CustomInput/CustomInput.js';
 import ReceiptOutlinedIcon from '@material-ui/icons/ReceiptOutlined';
 import TextField from '@material-ui/core/TextField';
-import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
+import {Modal, ModalHeader, ModalBody, } from 'reactstrap';
 import SearchBar from 'material-ui-search-bar';
 import Button from '@material-ui/core/Button';
 
+import ArrowBack from '@material-ui/icons/ArrowBack';
 import Alert from '@material-ui/lab/Alert';
 
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -28,8 +26,7 @@ import BillDetailsApi from '../api/Order';
 
 import BillTable from '../components/BillTable/BillTable';
 
-import {Link, useHistory} from 'react-router-dom';
-import {createNonNullChain} from 'typescript';
+import {useHistory} from 'react-router-dom';
 const styles = {
   cardCategoryWhite: {
     '&,& a,& a:hover,& a:focus': {
@@ -62,7 +59,7 @@ const styles = {
     },
   },
   bill: {
-    margin: '15%',
+    margin: '5%',
   },
   icons: {
     alignItems: 'center',
@@ -101,8 +98,6 @@ export default function TableList(props) {
   const [billData, setBillData] = useState();
   const [totAmount, setTotAmount] = useState(0.0);
   const {TableName} = props.location.state;
-
-  var totoAmount = 0;
   const arrCreation = (
     sl,
     itemCode,
@@ -185,8 +180,8 @@ export default function TableList(props) {
       const result = await BillDetailsApi.saveBill(bearerToken, billData);
       console.log(result);
       if (result.ok) {
-        localStorage.setItem('billId', result.data.id);
         history.push('/NewOrder');
+        localStorage.setItem(`${TableName}`, result.data.id);
       }
     } else {
       console.log('andr aya 2');
@@ -200,11 +195,11 @@ export default function TableList(props) {
     const token = localStorage.getItem('jwt');
     const bearerToken = 'Bearer ' + token;
     if (
-      customerName == undefined ||
-      mobile == undefined ||
-      email == undefined ||
-      gstNumber == undefined ||
-      address1 == undefined
+      customerName === undefined ||
+      mobile === undefined ||
+      email === undefined ||
+      gstNumber === undefined ||
+      address1 === undefined
     ) {
       return setError(!error);
     }
@@ -341,15 +336,24 @@ export default function TableList(props) {
           </div>
         </ModalBody>
       </Modal>
+      
+    <div className={classes.bill}>
       <GridContainer className={classes.bill}>
         <GridItem xs={12} sm={12} md={12}>
+        <ButtonMain
+        onClick={() => history.push('/NewOrder')}
+        color="danger"
+        startIcon={<ArrowBack />}
+      >
+        Back
+      </ButtonMain>
           <Card>
             <CardHeader color="warning">
               <div className="row">
-                <div className="col-sm-10 col-md-9 col-lg-10">
+                <div className="col-sm-8 col-md-8 col-lg-10">
                   <h4 className={classes.cardTitleWhite}>Bill Screen</h4>
                 </div>
-                <div className="col-sm-2 col-md-3 col-lg-2">
+                <div className="col-sm-4 col-md-4 col-lg-2">
                   <ButtonMain
                     color="danger"
                     startIcon={<ReceiptOutlinedIcon />}
@@ -417,6 +421,7 @@ export default function TableList(props) {
           </Card>
         </GridItem>
       </GridContainer>
+      </div>
     </>
   );
 }

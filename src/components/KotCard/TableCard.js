@@ -1,23 +1,15 @@
 import React from 'react';
 // @material-ui/core components
 import {makeStyles} from '@material-ui/core/styles';
-import Icon from '@material-ui/core/Icon';
 
 // core components
 import GridItem from 'components/Grid/GridItem.js';
 import GridContainer from 'components/Grid/GridContainer.js';
-import Table from 'components/Table/Table.js';
 import Card from 'components/Card/Card.js';
 import CardHeader from 'components/Card/CardHeader.js';
 import Button from 'components/CustomButtons/Button.js';
-import CardBody from 'components/Card/CardBody.js';
-import CardFooter from 'components/Card/CardFooter.js';
-import CardIcon from 'components/Card/CardIcon.js';
-import CustomInput from 'components/CustomInput/CustomInput.js';
-import ReceiptOutlinedIcon from '@material-ui/icons/ReceiptOutlined';
-import TextField from '@material-ui/core/TextField';
 
-import {Link, useHistory} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 const styles = {
   cardCategoryWhite: {
     '&,& a,& a:hover,& a:focus': {
@@ -95,7 +87,7 @@ export default function NewOrder({title, addItem, makeBill, makePayment}) {
                 </Button>
               )}
               {makePayment && (
-                <Button color="danger" size="Large">
+                <Button color="success" size="Large">
                 <Link  to={{
                       pathname: '/MakePayment',
                       state: {

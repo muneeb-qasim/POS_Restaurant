@@ -1,22 +1,9 @@
 import React, {useEffect, useState} from 'react';
 // @material-ui/core components
 import {makeStyles} from '@material-ui/core/styles';
-import Icon from '@material-ui/core/Icon';
 
 // core components
-import GridItem from 'components/Grid/GridItem.js';
-import GridContainer from 'components/Grid/GridContainer.js';
 import Table from 'components/Table/Table.js';
-import Card from 'components/Card/Card.js';
-import CardHeader from 'components/Card/CardHeader.js';
-import Button from 'components/CustomButtons/Button.js';
-import CardBody from 'components/Card/CardBody.js';
-import CardFooter from 'components/Card/CardFooter.js';
-import CardIcon from 'components/Card/CardIcon.js';
-import CustomInput from 'components/CustomInput/CustomInput.js';
-import ReceiptOutlinedIcon from '@material-ui/icons/ReceiptOutlined';
-import TextField from '@material-ui/core/TextField';
-
 const styles = {
   cardCategoryWhite: {
     '&,& a,& a:hover,& a:focus': {
@@ -62,7 +49,7 @@ const useStyles = makeStyles(styles);
 
 export default function BillTable({data}) {
   console.log('Data Created Cahal', data);
-  
+
   const classes = useStyles();
 
   return (

@@ -4,27 +4,21 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
-import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import MenuIcon from '@material-ui/icons/Menu';
-import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import MailIcon from '@material-ui/icons/Mail';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import Button from '@material-ui/core/Button';
 import {Row, Col} from 'react-bootstrap';
 import Icon from '@material-ui/core/Icon';
 
-import {Link, useHistory} from 'react-router-dom';
+import { useHistory} from 'react-router-dom';
 import ButtonMain from 'components/CustomButtons/Button.js';
+import saleApi from '../api/Order';
 const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
@@ -100,14 +94,27 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Dashboard() {
   const classes = useStyles();
-  
+
   const history = useHistory();
+
+  const [totSaleDay, setTotSaleDay] = React.useState();
+  const [totBills, setTotBills] = React.useState();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
+  React.useEffect(() => {
+    (async () => {
+      const token = localStorage.getItem('jwt');
+      const bearerToken = 'Bearer ' + token;
+      const result = await saleApi.getTotSale(bearerToken);
+      //  console.log(result.data[0].count);
+      setTotSaleDay(result.data[0].total);
+      setTotBills(result.data[0].count);
+    })();
+  }, [totBills, totSaleDay]);
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -136,8 +143,15 @@ export default function Dashboard() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
+      <MenuItem
+        onClick={() => {
+          localStorage.clear();
+          history.push('/Login');
+        }}
+      >
+        LogOut
+      </MenuItem>
     </Menu>
   );
 
@@ -217,20 +231,31 @@ export default function Dashboard() {
               <CardActionArea>
                 <Icon style={{fontSize: 80, color: '#DC143C'}}>moving</Icon>
                 <CardContent>
-                  <Typography gutterBottom variant="h5" component="h2">
-                    Total Sale of the Day
+                  <Typography
+                    gutterBottom
+                    align="center"
+                    variant="h3"
+                    component="h2"
+                  >
+                    {totSaleDay}
                   </Typography>
                   <Typography
-                    variant="body2"
+                    align="center"
+                    variant="h6"
                     color="textSecondary"
                     component="p"
                   >
-                    Lizards are a widespread group of squamate reptiles
+                    {' '}
+                    Total Sale of the Day
                   </Typography>
                 </CardContent>
               </CardActionArea>
               <CardActions style={{justifyContent: 'center'}}>
-                <ButtonMain color="danger" round>
+                <ButtonMain
+                  color="danger"
+                  onClick={() => history.push('/BillReport')}
+                  round
+                >
                   View
                 </ButtonMain>
               </CardActions>
@@ -241,20 +266,30 @@ export default function Dashboard() {
               <CardActionArea>
                 <CardContent>
                   <Icon style={{fontSize: 80, color: '#CCCC00'}}>loyalty</Icon>
-                  <Typography gutterBottom variant="h5" component="h2">
+                  <Typography
+                    gutterBottom
+                    align="center"
+                    variant="53"
+                    component="h2"
+                  >
                     New Order
                   </Typography>
                   <Typography
-                    variant="body2"
+                    variant="h6"
+                    align="center"
                     color="textSecondary"
                     component="p"
                   >
-                    Lizards are a widespread group of squamate reptiles
+                    Click below for New Orders
                   </Typography>
                 </CardContent>
               </CardActionArea>
               <CardActions style={{justifyContent: 'center'}}>
-                <ButtonMain onClick={()=> history.push('/NewOrder')} color="warning" round>
+                <ButtonMain
+                  onClick={() => history.push('/NewOrder')}
+                  color="warning"
+                  round
+                >
                   New Order
                 </ButtonMain>
               </CardActions>
@@ -262,25 +297,35 @@ export default function Dashboard() {
           </Col>
           <Col md={{span: 3, offset: 1}}>
             <Card className={classes.root}>
-              <CardActionArea >
+              <CardActionArea>
                 <Icon style={{fontSize: 80, color: '#DC143C'}}>
                   receipt_long
                 </Icon>
-                <CardContent >
-                  <Typography  gutterBottom variant="h5" component="h2">
-                    Total Bills
+                <CardContent>
+                  <Typography
+                    gutterBottom
+                    align="center"
+                    variant="h3"
+                    component="h2"
+                  >
+                    {totBills}
                   </Typography>
                   <Typography
-                    variant="body2"
+                    variant="h6"
+                    align="center"
                     color="textSecondary"
                     component="p"
                   >
-                    Lizards are a widespread group of squamate reptiles
+                    Total Bills
                   </Typography>
                 </CardContent>
               </CardActionArea>
               <CardActions style={{justifyContent: 'center'}}>
-                <ButtonMain color="danger" round>
+                <ButtonMain
+                  onClick={() => history.push('/BillReport')}
+                  color="danger"
+                  round
+                >
                   View
                 </ButtonMain>
               </CardActions>

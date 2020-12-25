@@ -26,7 +26,13 @@ const addCustomer = (
     }
   );
 };
+const makePay = (token, payData) => {
+  return client.post('/api/rest/kot/make-payment', payData, {
+    headers: {Authorization: token},
+  });
+};
 export default {
   getCustomer,
-  addCustomer
+  addCustomer,
+  makePay,
 };

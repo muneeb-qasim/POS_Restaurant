@@ -11,18 +11,18 @@ function Login() {
   const [error1, setError1] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState();
+  const [dbName, setDbName] = useState();
   const [userPassword, setUserPassword] = useState();
   const FYID = 1;
-  const DBName = 'Company1';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(tenantID, userId, userPassword, FYID, DBName);
     if (
-      tenantID == undefined ||
-      userId == undefined ||
-      userPassword == undefined
+      tenantID === undefined ||
+      userId === undefined ||
+      userPassword === undefined ||
+      dbName === undefined
     ) {
       return setError(!error);
     }
@@ -35,21 +35,21 @@ function Login() {
       userId,
       userPassword,
       FYID,
-      DBName
+      dbName
     );
 
     setLoading(false);
     if (result.ok) {
       setError1(false);
       localStorage.setItem('jwt', result.data.token);
-      localStorage.setItem('user',result.data.username );
+      localStorage.setItem('user', result.data.username);
       history.push('/Dashboard');
     } else {
       setError1(true);
     }
   };
   return (
-    <div className="container inner outer col-sm-4 col-md-6 col-lg-4">
+    <div className="container inner outer col-sm-8 col-md-6 col-lg-4">
       <form onSubmit={handleSubmit}>
         <h3 className="title">Log in</h3>
 
@@ -75,6 +75,16 @@ function Login() {
           />
         </div>
         <div className="form-group">
+          <label>Company Name</label>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Enter Company"
+            value={dbName}
+            onChange={(e) => setDbName(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
           <label>Password</label>
           <input
             type="password"
@@ -83,19 +93,6 @@ function Login() {
             value={userPassword}
             onChange={(e) => setUserPassword(e.target.value)}
           />
-        </div>
-
-        <div className="form-group">
-          <div className="custom-control custom-checkbox">
-            <input
-              type="checkbox"
-              className="custom-control-input "
-              id="customCheck1"
-            />
-            <label className="custom-control-label" htmlFor="customCheck1">
-              Remember me
-            </label>
-          </div>
         </div>
 
         <button type="submit" className="btn  btn-lg btn-block">
