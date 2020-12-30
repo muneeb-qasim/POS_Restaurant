@@ -126,6 +126,7 @@ export default function VerticalTabs(props) {
   const [menuItem, setMenuItem] = React.useState([]);
   const [category, setCategory] = React.useState();
   const [itemCat, setItemCat] = React.useState();
+  const [itemFirst, setItemFirst] = React.useState();
   const [decrement, setDecrement] = React.useState(false);
   const [increment, setIncrement] = React.useState(false);
   const [remove, setRemove] = React.useState(false);
@@ -136,6 +137,7 @@ export default function VerticalTabs(props) {
   const {TableName} = props.location.state;
   const [error1, setError1] = React.useState(false);
   const [newTab, setNewTab] = React.useState(0);
+  const [firstTime, setFirstTime] = React.useState(true);
   const [againClick, setAgainClick] = React.useState(false);
   const [refresh, setRefresh] = React.useState(false);
   useEffect(() => {
@@ -145,27 +147,38 @@ export default function VerticalTabs(props) {
       const result = await OrderKotApi.getCategory(bearerToken);
       const resultWaiter = await OrderKotApi.getKot(bearerToken);
       console.log(result.data);
-      setCategory(result.data);
-      setWaiterList(resultWaiter.data);
+      if (result.ok) {
+        setCategory(result.data);
+        setWaiterList(resultWaiter.data);
 
-      if (increment) {
-        console.log('Increment', increment);
-        handleIncrement();
-      }
-      if (decrement) {
-        handleDecrement();
-      }
-      if (remove) {
-        handleRemove();
-      }
-      if (againClick) {
-        handleAgainClickIncrement();
+        const resItem = await OrderKotApi.getItemOutBranch(bearerToken);
+        if (firstTime) {
+          setItemCat(
+            resItem.data.filter(
+              (e) => e.categoryName == result.data[0].categoryName
+            )
+          );
+        }
+        if (increment) {
+          console.log('Increment', increment);
+          handleIncrement();
+        }
+        if (decrement) {
+          handleDecrement();
+        }
+        if (remove) {
+          handleRemove();
+        }
+        if (againClick) {
+          handleAgainClickIncrement();
+        }
       }
     })();
   }, [increment, decrement, remove, againClick, menuItem, refresh]);
   //====================================================
   const handleIncrement = () => {
     console.log('in COt', increment);
+
     const foundPrice = itemCat.find((o) => o.itemCode === currentObject[1]);
     const found = menuItem.findIndex((o) => o === currentObject);
     console.log('Curr', currentObject[1], foundPrice);
@@ -183,14 +196,16 @@ export default function VerticalTabs(props) {
   const handleAgainClickIncrement = async () => {
     console.log('Agya ha ');
     const foundPrice = itemCat.find((o) => o.itemCode === currentObject[1]);
-    const actualPrice = foundPrice.mrp;
+    const actualPrice = foundPrice !== undefined ? foundPrice.mrp : 0;
     const foundItem = menuItem.findIndex((o) => o[1] == currentObject[1]);
     console.log('menuItem Increase', actualPrice);
-    menuItem[foundItem][2] = 1 + menuItem[foundItem][2];
-    menuItem[foundItem][3] = menuItem[foundItem][3] + actualPrice;
-    console.log('menuItem Increase', menuItem[foundItem][2], actualPrice);
-    await setMenuItem(() => menuItem);
-    setAgainClick(false);
+    if (foundItem !== undefined) {
+      menuItem[foundItem][2] = 1 + menuItem[foundItem][2];
+      menuItem[foundItem][3] = menuItem[foundItem][3] + actualPrice;
+      console.log('menuItem Increase', menuItem[foundItem][2], actualPrice);
+      await setMenuItem(() => menuItem);
+      setAgainClick(false);
+    }
   };
   //====================================================
   const handleRemove = () => {
@@ -286,6 +301,7 @@ export default function VerticalTabs(props) {
   //=========================================================
   const handleChoose = async (title, price, count, childId) => {
     console.log('childId', childId);
+
     setRefresh(true);
     if (menuItem !== undefined) {
       setRefresh(true);
@@ -305,6 +321,8 @@ export default function VerticalTabs(props) {
 
   //===========================================================
   const handleChange = async (event, newValue) => {
+    console.log('yeh chala hai');
+    setFirstTime(false);
     console.log(event, newValue, category[newValue]);
     setNewTab(newValue);
     const token = localStorage.getItem('jwt');
@@ -357,6 +375,7 @@ export default function VerticalTabs(props) {
                       ))
                     : null}
                 </Tabs>
+
                 <TabPanel
                   value={value}
                   index={newTab}
@@ -379,80 +398,78 @@ export default function VerticalTabs(props) {
                 </TabPanel>
               </div>
             </CardBody>
-              <GridContainer>
-                <GridItem xs={12} sm={12} md={12}>
-                  <NewTableCard
-                    data={menuItem}
-                    callBackIncrement={handlePlusIcon}
-                    callBackDecrement={handleRemoveIcon}
-                    callBackRemove={handleDeleteIcon}
-                  />{' '}
-                </GridItem>
+            <GridContainer>
+              <GridItem xs={12} sm={12} md={12}>
+                <NewTableCard
+                  data={menuItem}
+                  callBackIncrement={handlePlusIcon}
+                  callBackDecrement={handleRemoveIcon}
+                  callBackRemove={handleDeleteIcon}
+                />{' '}
+              </GridItem>
 
-                <GridItem xs={5} sm={5} md={5}></GridItem>
-                <GridItem xs={7} sm={7} md={7}>
-                  <Button
-                    color="secondary"
-                    variant="contained"
-                    startIcon={<ReceiptOutlinedIcon />}
-                    onClick={handleClickOpen}
-                  >
-                    Select Waiter{' '}
-                  </Button>
-                  <Dialog
-                    disableBackdropClick
-                    disableEscapeKeyDown
-                    open={open}
-                    onClose={handleClose}
-                  >
-                    <DialogTitle>Select Waiter</DialogTitle>
-                    <DialogContent>
-                      <form className={classes.container}>
-                        <FormControl className="col-lg-12">
-                          <InputLabel htmlFor="demo-dialog-native">
-                            Waiter
-                          </InputLabel>
-                          <Select
-                            native
-                            value={age}
-                            onChange={handleChanges}
-                            input={<Input id="demo-dialog-native" />}
-                          >
-                            {waiterList !== undefined
-                              ? waiterList.map((obj) => (
-                                  <option value={obj.id}>
-                                    {obj.waiterName}
-                                  </option>
-                                ))
-                              : null}
-                          </Select>
-                        </FormControl>
-                      </form>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleClose} color="primary">
-                        Cancel
-                      </Button>
-                      <Button onClick={handleClose} color="primary">
-                        Ok
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
+              <GridItem xs={5} sm={5} md={5}></GridItem>
+              <GridItem xs={7} sm={7} md={7}>
+                <Button
+                  color="secondary"
+                  variant="contained"
+                  startIcon={<ReceiptOutlinedIcon />}
+                  onClick={handleClickOpen}
+                >
+                  Select Waiter{' '}
+                </Button>
+                <Dialog
+                  disableBackdropClick
+                  disableEscapeKeyDown
+                  open={open}
+                  onClose={handleClose}
+                >
+                  <DialogTitle>Select Waiter</DialogTitle>
+                  <DialogContent>
+                    <form className={classes.container}>
+                      <FormControl className="col-lg-12">
+                        <InputLabel htmlFor="demo-dialog-native">
+                          Waiter
+                        </InputLabel>
+                        <Select
+                          native
+                          value={age}
+                          onChange={handleChanges}
+                          input={<Input id="demo-dialog-native" />}
+                        >
+                          {waiterList !== undefined
+                            ? waiterList.map((obj) => (
+                                <option value={obj.id}>{obj.waiterName}</option>
+                              ))
+                            : null}
+                        </Select>
+                      </FormControl>
+                    </form>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                      Cancel
+                    </Button>
+                    <Button onClick={handleClose} color="primary">
+                      Ok
+                    </Button>
+                  </DialogActions>
+                </Dialog>
 
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    startIcon={<ReceiptOutlinedIcon />}
-                    onClick={handleSaveKot}
-                  >
-                    Save & Print{' '}
-                  </Button>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  startIcon={<ReceiptOutlinedIcon />}
+                  onClick={handleSaveKot}
+                >
+                  Save & Print{' '}
+                </Button>
 
-                  {error1 && (
-                    <Alert severity="warning">Please Add Item in List!</Alert>
-                  )}
-                </GridItem>
-              </GridContainer>
+                {error1 && (
+                  <Alert severity="warning">Please Add Item in List!</Alert>
+                )}
+              </GridItem>
+            </GridContainer>
           </Card>
         </GridItem>
       </GridContainer>

@@ -36,6 +36,15 @@ const getItem = (token, branch) => {
     }
   );
 };
+const getItemOutBranch = (token) => {
+  return client.get(
+    '/api/rest/kot/get-item-list',
+    {table: null},
+    {
+      headers: {Authorization: token},
+    }
+  );
+};
 const saveKot = (token, kotData) => {
   return client.post('/api/rest/kot/save-kot', kotData, {
     headers: {Authorization: token},
@@ -114,5 +123,6 @@ export default {
   getBillID,
   makePay,
   getTotSale,
-  getBillReport
+  getBillReport,
+  getItemOutBranch
 };
