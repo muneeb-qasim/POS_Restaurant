@@ -32,11 +32,13 @@
         "react-scripts": "3.4.1",
         "react-swipeable-views": "0.13.9",
         "react-tap-event-plugin": "^3.0.3",
-        "reactstrap": "^8.7.1"
+        "reactstrap": "^8.7.1",
+        "serve": "^11.3.2"
     },
     "scripts": {
-        "start": "react-scripts start ",
+        "start": "serve -s build",
         "build": "react-scripts build",
+        "heroku-postbuild": "npm run build",
         "test": "react-scripts test --env=jsdom",
         "eject": "react-scripts eject",
         "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
